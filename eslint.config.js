@@ -41,6 +41,7 @@ export default defineConfig([
     rules: {
       "import/extensions": "off",
       "no-plusplus": ["error", { allowForLoopAfterthoughts: true }],
+      "no-use-before-define": ["error", { functions: false }],
     },
   },
   eslintConfigPrettier,
