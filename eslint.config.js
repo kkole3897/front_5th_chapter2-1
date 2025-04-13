@@ -28,5 +28,13 @@ export default defineConfig([
   tseslint.configs.recommended,
   pluginReact.configs.flat.recommended,
   ...compat.extends("eslint-config-airbnb"),
+  {
+    files: ["eslint.config.js"],
+    rules: {
+      "no-underscore-dangle": "off",
+      "import/no-extraneous-dependencies": ["error", { packageDir: __dirname }],
+      "import/no-unresolved": "off",
+    },
+  },
   eslintConfigPrettier,
 ]);
