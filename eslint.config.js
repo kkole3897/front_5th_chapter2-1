@@ -36,5 +36,12 @@ export default defineConfig([
       "import/no-unresolved": "off",
     },
   },
+  {
+    files: ["src/**/*.{js,mjs,cjs,ts,jsx,tsx}"],
+    rules: {
+      "import/extensions": "off",
+      "no-plusplus": ["error", { allowForLoopAfterthoughts: true }],
+    },
+  },
   eslintConfigPrettier,
 ]);
