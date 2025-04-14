@@ -29,7 +29,7 @@ export default defineConfig([
   pluginReact.configs.flat.recommended,
   ...compat.extends("eslint-config-airbnb"),
   {
-    files: ["eslint.config.js"],
+    files: ["eslint.config.js", "vite.config.js"],
     rules: {
       "no-underscore-dangle": "off",
       "import/no-extraneous-dependencies": ["error", { packageDir: __dirname }],
@@ -42,6 +42,14 @@ export default defineConfig([
       "import/extensions": "off",
       "no-plusplus": ["error", { allowForLoopAfterthoughts: true }],
       "no-use-before-define": ["error", { functions: false }],
+    },
+    settings: {
+      "import/resolver": {
+        alias: {
+          map: [["@", path.resolve(__dirname, "src")]],
+          extensions: [".js", ".jsx", ".ts", ".tsx"],
+        },
+      },
     },
   },
   eslintConfigPrettier,
