@@ -1,4 +1,4 @@
-import { RANDOM_DISCOUNT_RATE } from "./constants";
+import { RANDOM_DISCOUNT_RATE } from "../constants";
 import { hasStock } from "@/entities/product";
 
 export const pickRandomDiscountProduct = (products) => {
@@ -11,10 +11,6 @@ export const pickRandomDiscountProduct = (products) => {
   }
 
   return null;
-};
-
-export const applyDiscount = (product, discountRate) => {
-  product.price = Math.round(product.price * (1 - discountRate));
 };
 
 export const alertRandomDiscount = (product) => {

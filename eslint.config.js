@@ -43,6 +43,7 @@ export default defineConfig([
       "no-plusplus": ["error", { allowForLoopAfterthoughts: true }],
       "no-use-before-define": ["error", { functions: false }],
       "import/prefer-default-export": "off",
+      "no-param-reassign": ["error", { props: false }],
     },
     settings: {
       "import/resolver": {
