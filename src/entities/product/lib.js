@@ -12,3 +12,13 @@ export const isStockLow = (product) => product.quantity < 5;
 
 export const isProductQuantityMoreOrEqual = (product, quantity) =>
   product.quantity >= quantity;
+
+export const findProductById = (products, id) => {
+  const found = products.find((product) => product.id === id);
+
+  if (found) {
+    return found;
+  }
+
+  return null;
+};

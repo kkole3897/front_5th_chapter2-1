@@ -4,6 +4,7 @@ import {
   hasStock,
   generateStockAlertMessage,
   isProductQuantityMoreOrEqual,
+  findProductById,
   MESSAGES,
 } from "@/entities/product";
 import {
@@ -18,6 +19,9 @@ import {
   generateSuggestedDiscountStartDelay,
   SUGGESTED_DISCOUNT_INTERVAL,
   SUGGESTED_DISCOUNT_RATE,
+  getDiscountRatePerProductInCart,
+  isBulkDiscountAvailable,
+  BULK_DISCOUNT_RATE,
 } from "@/features/discount";
 
 let products;
@@ -120,42 +124,33 @@ function calcCart() {
   totalAmount = 0;
   itemCounts = 0;
 
-  const cartItems = $cartDisplay.children;
+  const $cartItems = $cartDisplay.children;
 
   let tempTotalAmount = 0;
-  for (let i = 0; i < cartItems.length; i++) {
-    let curProduct;
-    for (let j = 0; j < products.length; j++) {
-      if (products[j].id === cartItems[i].id) {
-        curProduct = products[j];
-        break;
-      }
-    }
+  for (let i = 0; i < $cartItems.length; i++) {
+    const curProduct = findProductById(products, $cartItems[i].id);
     const quantity = parseInt(
-      cartItems[i].querySelector("span").textContent.split("x ")[1],
+      $cartItems[i].querySelector("span").textContent.split("x ")[1],
       10,
     );
+
     const curProductAmount = curProduct.price * quantity;
-    let discountRate = 0;
+
     itemCounts += quantity;
     tempTotalAmount += curProductAmount;
-    if (quantity >= 10) {
-      if (curProduct.id === "p1") discountRate = 0.1;
-      else if (curProduct.id === "p2") discountRate = 0.15;
-      else if (curProduct.id === "p3") discountRate = 0.2;
-      else if (curProduct.id === "p4") discountRate = 0.05;
-      else if (curProduct.id === "p5") discountRate = 0.25;
-    }
+
+    const discountRate = getDiscountRatePerProductInCart(curProduct, quantity);
     totalAmount += curProductAmount * (1 - discountRate);
   }
 
   let discountRate = 0;
-  if (itemCounts >= 30) {
-    const bulkDiscount = totalAmount * 0.25;
+  if (isBulkDiscountAvailable(itemCounts)) {
+    // TODO: 카트 상품 수량 기준 할인 적용 리팩토링
+    const bulkDiscount = totalAmount * BULK_DISCOUNT_RATE;
     const itemDiscount = tempTotalAmount - totalAmount;
     if (bulkDiscount > itemDiscount) {
-      totalAmount = tempTotalAmount * (1 - 0.25);
-      discountRate = 0.25;
+      totalAmount = tempTotalAmount * (1 - BULK_DISCOUNT_RATE);
+      discountRate = BULK_DISCOUNT_RATE;
     } else {
       discountRate = (tempTotalAmount - totalAmount) / tempTotalAmount;
     }
