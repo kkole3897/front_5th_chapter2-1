@@ -25,6 +25,7 @@ import {
   BULK_DISCOUNT_RATE,
   getDiscountRateByDayOfWeek,
 } from "@/features/discount";
+import { generateCartItemText } from "@/features/manage-cart";
 
 let products;
 let lastSelectedProductId;
@@ -201,9 +202,7 @@ main();
 
 $addCartBtn.addEventListener("click", () => {
   const selectedProductId = $productSelect.value;
-  const productToAdd = products.find(
-    (product) => product.id === selectedProductId,
-  );
+  const productToAdd = findProductById(products, selectedProductId);
   if (productToAdd && hasStock(productToAdd)) {
     const $cartItem = document.getElementById(productToAdd.id);
     if ($cartItem) {
@@ -213,8 +212,10 @@ $addCartBtn.addEventListener("click", () => {
           10,
         ) + 1;
       if (isProductQuantityMoreOrEqual(productToAdd, newQuantity)) {
-        $cartItem.querySelector("span").textContent =
-          `${productToAdd.name} - ${productToAdd.price}원 x ${newQuantity}`;
+        $cartItem.querySelector("span").textContent = generateCartItemText(
+          productToAdd,
+          newQuantity,
+        );
         productToAdd.quantity -= 1;
       } else {
         alert(MESSAGES.outOfStock);
@@ -224,7 +225,7 @@ $addCartBtn.addEventListener("click", () => {
       $newCartItem.id = productToAdd.id;
       $newCartItem.className = "flex justify-between items-center mb-2";
       $newCartItem.innerHTML = `
-        <span>${productToAdd.name} - ${productToAdd.price}원 x 1</span>
+        <span>${generateCartItemText(productToAdd, 1)}</span>
         <div>
           <button class="quantity-change bg-blue-500 text-white px-2 py-1 rounded mr-1" data-product-id="${productToAdd.id}" data-change="-1">-</button>
           <button class="quantity-change bg-blue-500 text-white px-2 py-1 rounded mr-1" data-product-id="${productToAdd.id}" data-change="1">+</button>
@@ -247,13 +248,13 @@ $cartDisplay.addEventListener("click", (event) => {
     target.classList.contains("remove-item")
   ) {
     const { productId } = target.dataset;
-    const $targetProduct = document.getElementById(productId);
+    const $targetCartItem = document.getElementById(productId);
     const foundProduct = products.find((product) => product.id === productId);
 
     if (target.classList.contains("quantity-change")) {
       const quantityToChange = parseInt(target.dataset.change, 10);
       const currentQuantity = parseInt(
-        $targetProduct.querySelector("span").textContent.split("x ")[1],
+        $targetCartItem.querySelector("span").textContent.split("x ")[1],
         10,
       );
 
@@ -263,22 +264,22 @@ $cartDisplay.addEventListener("click", (event) => {
         newQuantity > 0 &&
         newQuantity <= foundProduct.quantity + currentQuantity
       ) {
-        $targetProduct.querySelector("span").textContent =
-          `${$targetProduct.querySelector("span").textContent.split("x ")[0]}x ${newQuantity}`;
+        $targetCartItem.querySelector("span").textContent =
+          generateCartItemText(foundProduct, newQuantity);
         foundProduct.quantity -= quantityToChange;
       } else if (newQuantity <= 0) {
-        $targetProduct.remove();
+        $targetCartItem.remove();
         foundProduct.quantity -= quantityToChange;
       } else {
         alert(MESSAGES.outOfStock);
       }
     } else if (target.classList.contains("remove-item")) {
       const quantityToRemove = parseInt(
-        $targetProduct.querySelector("span").textContent.split("x ")[1],
+        $targetCartItem.querySelector("span").textContent.split("x ")[1],
         10,
       );
       foundProduct.quantity += quantityToRemove;
-      $targetProduct.remove();
+      $targetCartItem.remove();
     }
 
     calcCart();
