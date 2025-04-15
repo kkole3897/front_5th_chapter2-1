@@ -1,3 +1,4 @@
+import { calcBonusPoints } from "@/entities/bonus-point";
 import {
   getInitialProducts,
   formatProductOptionContent,
@@ -177,15 +178,15 @@ function calcCart() {
 }
 
 function renderBonusPoints() {
-  bonusPoints = Math.floor(totalAmount / 1000);
-  let $loyaltyPoints = document.getElementById("loyalty-points");
-  if (!$loyaltyPoints) {
-    $loyaltyPoints = document.createElement("span");
-    $loyaltyPoints.id = "loyalty-points";
-    $loyaltyPoints.className = "text-blue-500 ml-2";
-    $cartSumDisplay.appendChild($loyaltyPoints);
+  bonusPoints = calcBonusPoints(totalAmount);
+  let $loyaltyPointsDisplay = document.getElementById("loyalty-points");
+  if (!$loyaltyPointsDisplay) {
+    $loyaltyPointsDisplay = document.createElement("span");
+    $loyaltyPointsDisplay.id = "loyalty-points";
+    $loyaltyPointsDisplay.className = "text-blue-500 ml-2";
+    $cartSumDisplay.appendChild($loyaltyPointsDisplay);
   }
-  $loyaltyPoints.textContent = `(포인트: ${bonusPoints})`;
+  $loyaltyPointsDisplay.textContent = `(포인트: ${bonusPoints})`;
 }
 
 function updateStockInfo() {
