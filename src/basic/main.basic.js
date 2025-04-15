@@ -6,6 +6,14 @@ import {
   isProductQuantityMoreOrEqual,
   MESSAGES,
 } from "@/entities/product";
+import {
+  pickRandomDiscountProduct,
+  applyDiscount,
+  alertRandomDiscount,
+  generateRandomDiscountStartDelay,
+  RANDOM_DISCOUNT_INTERVAL,
+  RANDOM_DISCOUNT_RATE,
+} from "@/features/discount";
 
 let products;
 let lastSelectedProductId;
@@ -66,14 +74,14 @@ function main() {
 
   setTimeout(() => {
     setInterval(() => {
-      const luckyItem = products[Math.floor(Math.random() * products.length)];
-      if (Math.random() < 0.3 && hasStock(luckyItem)) {
-        luckyItem.price = Math.round(luckyItem.price * 0.8);
-        alert(`번개세일! ${luckyItem.name}이(가) 20% 할인 중입니다!`);
+      const luckyItem = pickRandomDiscountProduct(products);
+      if (luckyItem) {
+        applyDiscount(luckyItem, RANDOM_DISCOUNT_RATE);
+        alertRandomDiscount(luckyItem);
         updateProductSelectOptions();
       }
-    }, 30000);
-  }, Math.random() * 10000);
+    }, RANDOM_DISCOUNT_INTERVAL);
+  }, generateRandomDiscountStartDelay());
 
   setTimeout(() => {
     setInterval(() => {

@@ -1,0 +1,2 @@
+export const RANDOM_DISCOUNT_RATE = 0.2;
+export const RANDOM_DISCOUNT_INTERVAL = 30000;
