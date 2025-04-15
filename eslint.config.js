@@ -42,6 +42,7 @@ export default defineConfig([
       "import/extensions": "off",
       "no-plusplus": ["error", { allowForLoopAfterthoughts: true }],
       "no-use-before-define": ["error", { functions: false }],
+      "import/prefer-default-export": "off",
     },
     settings: {
       "import/resolver": {
