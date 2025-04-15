@@ -22,6 +22,7 @@ import {
   getDiscountRatePerProductInCart,
   isBulkDiscountAvailable,
   BULK_DISCOUNT_RATE,
+  getDiscountRateByDayOfWeek,
 } from "@/features/discount";
 
 let products;
@@ -158,10 +159,9 @@ function calcCart() {
     discountRate = (tempTotalAmount - totalAmount) / tempTotalAmount;
   }
 
-  if (new Date().getDay() === 2) {
-    totalAmount *= 1 - 0.1;
-    discountRate = Math.max(discountRate, 0.1);
-  }
+  const dayOfWeekDiscountRate = getDiscountRateByDayOfWeek();
+  totalAmount *= 1 - dayOfWeekDiscountRate;
+  discountRate = Math.max(discountRate, dayOfWeekDiscountRate);
 
   $cartSumDisplay.textContent = `총액: ${Math.round(totalAmount)}원`;
 
