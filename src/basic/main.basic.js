@@ -26,6 +26,7 @@ import {
   getDiscountRateByDayOfWeek,
 } from "@/features/discount";
 import { generateCartItemText } from "@/features/manage-cart";
+import eventManager from "@/shared/event-manager";
 
 let products;
 let lastSelectedProductId;
@@ -38,6 +39,95 @@ let $addCartBtn;
 let $cartDisplay;
 let $cartSumDisplay;
 let $stockInfoDisplay;
+
+eventManager.addEvent("click", "#add-to-cart", () => {
+  const selectedProductId = $productSelect.value;
+  const productToAdd = findProductById(products, selectedProductId);
+  if (productToAdd && hasStock(productToAdd)) {
+    const $cartItem = document.getElementById(productToAdd.id);
+    if ($cartItem) {
+      const newQuantity =
+        parseInt(
+          $cartItem.querySelector("span").textContent.split("x ")[1],
+          10,
+        ) + 1;
+      if (isProductQuantityMoreOrEqual(productToAdd, newQuantity)) {
+        $cartItem.querySelector("span").textContent = generateCartItemText(
+          productToAdd,
+          newQuantity,
+        );
+        productToAdd.quantity -= 1;
+      } else {
+        alert(MESSAGES.outOfStock);
+      }
+    } else {
+      const $newCartItem = document.createElement("div");
+      $newCartItem.id = productToAdd.id;
+      $newCartItem.className = "flex justify-between items-center mb-2";
+      $newCartItem.innerHTML = `
+        <span>${generateCartItemText(productToAdd, 1)}</span>
+        <div>
+          <button class="quantity-change bg-blue-500 text-white px-2 py-1 rounded mr-1" data-product-id="${productToAdd.id}" data-change="-1">-</button>
+          <button class="quantity-change bg-blue-500 text-white px-2 py-1 rounded mr-1" data-product-id="${productToAdd.id}" data-change="1">+</button>
+          <button class="remove-item bg-red-500 text-white px-2 py-1 rounded" data-product-id="${productToAdd.id}">삭제</button>
+        </div>
+      `;
+      $cartDisplay.appendChild($newCartItem);
+      productToAdd.quantity -= 1;
+    }
+    calcCart();
+    lastSelectedProductId = selectedProductId;
+  }
+});
+
+eventManager.addEvent("click", ".quantity-change", (event) => {
+  const { target } = event;
+  const { productId } = target.dataset;
+  const $targetCartItem = document.getElementById(productId);
+  const foundProduct = products.find((product) => product.id === productId);
+
+  const quantityToChange = parseInt(target.dataset.change, 10);
+  const currentQuantity = parseInt(
+    $targetCartItem.querySelector("span").textContent.split("x ")[1],
+    10,
+  );
+
+  const newQuantity = currentQuantity + quantityToChange;
+
+  if (
+    newQuantity > 0 &&
+    newQuantity <= foundProduct.quantity + currentQuantity
+  ) {
+    $targetCartItem.querySelector("span").textContent = generateCartItemText(
+      foundProduct,
+      newQuantity,
+    );
+    foundProduct.quantity -= quantityToChange;
+  } else if (newQuantity <= 0) {
+    $targetCartItem.remove();
+    foundProduct.quantity -= quantityToChange;
+  } else {
+    alert(MESSAGES.outOfStock);
+  }
+
+  calcCart();
+});
+
+eventManager.addEvent("click", ".remove-item", (event) => {
+  const { target } = event;
+  const { productId } = target.dataset;
+  const $targetCartItem = document.getElementById(productId);
+  const foundProduct = products.find((product) => product.id === productId);
+
+  const quantityToRemove = parseInt(
+    $targetCartItem.querySelector("span").textContent.split("x ")[1],
+    10,
+  );
+  foundProduct.quantity += quantityToRemove;
+  $targetCartItem.remove();
+
+  calcCart();
+});
 
 function main() {
   products = getInitialProducts();
@@ -110,6 +200,8 @@ function main() {
       }
     }, SUGGESTED_DISCOUNT_INTERVAL);
   }, generateSuggestedDiscountStartDelay());
+
+  eventManager.registerEvents();
 }
 
 function updateProductSelectOptions() {
@@ -199,89 +291,3 @@ function updateStockInfo() {
 }
 
 main();
-
-$addCartBtn.addEventListener("click", () => {
-  const selectedProductId = $productSelect.value;
-  const productToAdd = findProductById(products, selectedProductId);
-  if (productToAdd && hasStock(productToAdd)) {
-    const $cartItem = document.getElementById(productToAdd.id);
-    if ($cartItem) {
-      const newQuantity =
-        parseInt(
-          $cartItem.querySelector("span").textContent.split("x ")[1],
-          10,
-        ) + 1;
-      if (isProductQuantityMoreOrEqual(productToAdd, newQuantity)) {
-        $cartItem.querySelector("span").textContent = generateCartItemText(
-          productToAdd,
-          newQuantity,
-        );
-        productToAdd.quantity -= 1;
-      } else {
-        alert(MESSAGES.outOfStock);
-      }
-    } else {
-      const $newCartItem = document.createElement("div");
-      $newCartItem.id = productToAdd.id;
-      $newCartItem.className = "flex justify-between items-center mb-2";
-      $newCartItem.innerHTML = `
-        <span>${generateCartItemText(productToAdd, 1)}</span>
-        <div>
-          <button class="quantity-change bg-blue-500 text-white px-2 py-1 rounded mr-1" data-product-id="${productToAdd.id}" data-change="-1">-</button>
-          <button class="quantity-change bg-blue-500 text-white px-2 py-1 rounded mr-1" data-product-id="${productToAdd.id}" data-change="1">+</button>
-          <button class="remove-item bg-red-500 text-white px-2 py-1 rounded" data-product-id="${productToAdd.id}">삭제</button>
-        </div>
-      `;
-      $cartDisplay.appendChild($newCartItem);
-      productToAdd.quantity -= 1;
-    }
-    calcCart();
-    lastSelectedProductId = selectedProductId;
-  }
-});
-
-$cartDisplay.addEventListener("click", (event) => {
-  const { target } = event;
-
-  if (
-    target.classList.contains("quantity-change") ||
-    target.classList.contains("remove-item")
-  ) {
-    const { productId } = target.dataset;
-    const $targetCartItem = document.getElementById(productId);
-    const foundProduct = products.find((product) => product.id === productId);
-
-    if (target.classList.contains("quantity-change")) {
-      const quantityToChange = parseInt(target.dataset.change, 10);
-      const currentQuantity = parseInt(
-        $targetCartItem.querySelector("span").textContent.split("x ")[1],
-        10,
-      );
-
-      const newQuantity = currentQuantity + quantityToChange;
-
-      if (
-        newQuantity > 0 &&
-        newQuantity <= foundProduct.quantity + currentQuantity
-      ) {
-        $targetCartItem.querySelector("span").textContent =
-          generateCartItemText(foundProduct, newQuantity);
-        foundProduct.quantity -= quantityToChange;
-      } else if (newQuantity <= 0) {
-        $targetCartItem.remove();
-        foundProduct.quantity -= quantityToChange;
-      } else {
-        alert(MESSAGES.outOfStock);
-      }
-    } else if (target.classList.contains("remove-item")) {
-      const quantityToRemove = parseInt(
-        $targetCartItem.querySelector("span").textContent.split("x ")[1],
-        10,
-      );
-      foundProduct.quantity += quantityToRemove;
-      $targetCartItem.remove();
-    }
-
-    calcCart();
-  }
-});
