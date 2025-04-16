@@ -29,7 +29,6 @@ import { generateCartItemText } from "@/features/manage-cart";
 import eventManager from "@/shared/event-manager";
 import store from "@/shared/store";
 
-let lastSelectedProductId;
 let bonusPoints = 0;
 let totalAmount = 0;
 let itemCounts = 0;
@@ -78,7 +77,7 @@ eventManager.addEvent("click", "#add-to-cart", () => {
       productToAdd.quantity -= 1;
     }
     calcCart();
-    lastSelectedProductId = selectedProductId;
+    store.setState({ lastSelectedProductId: selectedProductId });
   }
 });
 
@@ -194,6 +193,7 @@ function main() {
 
   setTimeout(() => {
     setInterval(() => {
+      const { lastSelectedProductId } = store.getState();
       if (lastSelectedProductId) {
         const suggest = pickSuggestedDiscountProduct(
           products,
