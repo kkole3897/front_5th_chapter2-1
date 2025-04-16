@@ -27,8 +27,8 @@ import {
 } from "@/features/discount";
 import { generateCartItemText } from "@/features/manage-cart";
 import eventManager from "@/shared/event-manager";
+import store from "@/shared/store";
 
-let products;
 let lastSelectedProductId;
 let bonusPoints = 0;
 let totalAmount = 0;
@@ -41,6 +41,8 @@ let $cartSumDisplay;
 let $stockInfoDisplay;
 
 eventManager.addEvent("click", "#add-to-cart", () => {
+  const { products } = store.getState();
+
   const selectedProductId = $productSelect.value;
   const productToAdd = findProductById(products, selectedProductId);
   if (productToAdd && hasStock(productToAdd)) {
@@ -81,6 +83,8 @@ eventManager.addEvent("click", "#add-to-cart", () => {
 });
 
 eventManager.addEvent("click", ".quantity-change", (event) => {
+  const { products } = store.getState();
+
   const { target } = event;
   const { productId } = target.dataset;
   const $targetCartItem = document.getElementById(productId);
@@ -114,6 +118,8 @@ eventManager.addEvent("click", ".quantity-change", (event) => {
 });
 
 eventManager.addEvent("click", ".remove-item", (event) => {
+  const { products } = store.getState();
+
   const { target } = event;
   const { productId } = target.dataset;
   const $targetCartItem = document.getElementById(productId);
@@ -130,7 +136,7 @@ eventManager.addEvent("click", ".remove-item", (event) => {
 });
 
 function main() {
-  products = getInitialProducts();
+  store.setState({ products: getInitialProducts() });
 
   const $root = document.getElementById("app");
   const $content = document.createElement("div");
@@ -178,6 +184,7 @@ function main() {
     setInterval(() => {
       const luckyProduct = pickRandomDiscountProduct(products);
       if (luckyProduct) {
+        // TODO: store.setState immutable하게 관리
         applyDiscount(luckyProduct, RANDOM_DISCOUNT_RATE);
         alertRandomDiscount(luckyProduct);
         updateProductSelectOptions();
@@ -206,6 +213,9 @@ function main() {
 
 function updateProductSelectOptions() {
   $productSelect.innerHTML = "";
+
+  const { products } = store.getState();
+
   products.forEach((product) => {
     const $option = document.createElement("option");
     $option.value = product.id;
@@ -216,6 +226,8 @@ function updateProductSelectOptions() {
 }
 
 function calcCart() {
+  const { products } = store.getState();
+
   totalAmount = 0;
   itemCounts = 0;
 
@@ -284,6 +296,9 @@ function renderBonusPoints() {
 
 function updateStockInfo() {
   let infoMsg = "";
+
+  const { products } = store.getState();
+
   products.forEach((product) => {
     infoMsg += generateStockAlertMessage(product);
   });
