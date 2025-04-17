@@ -66,7 +66,7 @@ const calcCart = (products, cart) => {
 };
 
 const App = () => {
-  const { products, cart, lastSelectedProductId } = store.getState();
+  const { products, cart } = store.getState();
 
   const [totalAmount, discountRate] = calcCart(products, cart);
   const bonusPoints = calcBonusPoints(totalAmount);
@@ -124,7 +124,8 @@ const App = () => {
   };
 
   const handleAddToCart = () => {
-    const { lastSelectedProductId: selectedProductId } = store.getState();
+    const $select = document.getElementById("product-select");
+    const selectedProductId = $select.value;
 
     const productToAdd = findProductById(products, selectedProductId);
     if (productToAdd && hasStock(productToAdd)) {
@@ -248,7 +249,6 @@ const App = () => {
                   {
                     value: product.id,
                     ...(!hasStock(product) && { disabled: !hasStock(product) }),
-                    selected: product.id === lastSelectedProductId,
                   },
                   [formatProductOptionContent(product)],
                 ),
