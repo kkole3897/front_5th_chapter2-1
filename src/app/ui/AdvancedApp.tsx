@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 
 import {
   type Product,
@@ -22,6 +22,17 @@ import {
   isBulkDiscountAvailable,
   BULK_DISCOUNT_RATE,
   getDiscountRateByDayOfWeek,
+  pickRandomDiscountProduct,
+  RANDOM_DISCOUNT_RATE,
+  applyDiscount,
+  alertRandomDiscount,
+  RANDOM_DISCOUNT_INTERVAL,
+  generateRandomDiscountStartDelay,
+  pickSuggestedDiscountProduct,
+  alertSuggestedDiscount,
+  SUGGESTED_DISCOUNT_RATE,
+  SUGGESTED_DISCOUNT_INTERVAL,
+  generateSuggestedDiscountStartDelay,
 } from "@/features/discount";
 
 const calcCart = (products: Product[], cart: CartItem[]) => {
@@ -78,6 +89,52 @@ export default function AdvancedApp() {
 
   const [totalAmount, discountRate] = calcCart(products, cart);
   const bonusPoints = calcBonusPoints(totalAmount);
+
+  const randomDiscountIntervalRef = useRef<NodeJS.Timeout | null>(null);
+  const suggestedDiscountIntervalRef = useRef<NodeJS.Timeout | null>(null);
+
+  useEffect(() => {
+    setTimeout(() => {
+      randomDiscountIntervalRef.current = setInterval(() => {
+        const luckyProduct = pickRandomDiscountProduct(products);
+        if (luckyProduct) {
+          applyDiscount(luckyProduct, RANDOM_DISCOUNT_RATE);
+          alertRandomDiscount(luckyProduct);
+          setProducts(products);
+        }
+      }, RANDOM_DISCOUNT_INTERVAL);
+    }, generateRandomDiscountStartDelay());
+
+    return () => {
+      if (randomDiscountIntervalRef.current) {
+        clearInterval(randomDiscountIntervalRef.current);
+      }
+    };
+  }, []);
+
+  useEffect(() => {
+    setTimeout(() => {
+      suggestedDiscountIntervalRef.current = setInterval(() => {
+        if (lastSelectedProductId) {
+          const suggest = pickSuggestedDiscountProduct(
+            products,
+            lastSelectedProductId,
+          );
+          if (suggest) {
+            alertSuggestedDiscount(suggest);
+            applyDiscount(suggest, SUGGESTED_DISCOUNT_RATE);
+            setProducts(products);
+          }
+        }
+      }, SUGGESTED_DISCOUNT_INTERVAL);
+    }, generateSuggestedDiscountStartDelay());
+
+    return () => {
+      if (suggestedDiscountIntervalRef.current) {
+        clearInterval(suggestedDiscountIntervalRef.current);
+      }
+    };
+  }, []);
 
   const handleCartItemQuantityChange = (
     event: React.MouseEvent<HTMLButtonElement>,
