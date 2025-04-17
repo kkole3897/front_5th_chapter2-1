@@ -14,13 +14,13 @@ import {
   SUGGESTED_DISCOUNT_RATE,
 } from "@/features/discount";
 import eventManager from "@/shared/event-manager";
+import { renderElement } from "@/shared/lib/v-dom";
 import store from "@/shared/store";
 
 const render = () => {
   const $root = document.getElementById("app");
-  $root.innerHTML = App();
 
-  eventManager.registerEvents();
+  renderElement(App(), $root);
 };
 
 function main() {
