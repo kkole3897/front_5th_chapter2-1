@@ -119,10 +119,6 @@ const App = () => {
     store.setState({ cart: newCart });
   };
 
-  const handleChangeProductSelect = (event) => {
-    store.setState({ lastSelectedProductId: event.target.value });
-  };
-
   const handleAddToCart = () => {
     const $select = document.getElementById("product-select");
     const selectedProductId = $select.value;
@@ -150,7 +146,7 @@ const App = () => {
   return createVNode(
     "div",
     {
-      className: "bg-gray-100 p8",
+      className: "bg-gray-100 p-8",
     },
     [
       createVNode(
@@ -240,7 +236,6 @@ const App = () => {
             {
               id: "product-select",
               className: "border rounded p-2 mr-2",
-              onChange: handleChangeProductSelect,
             },
             [
               products.map((product) =>
