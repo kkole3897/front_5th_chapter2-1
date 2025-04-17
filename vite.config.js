@@ -16,5 +16,15 @@ export default defineConfig({
       "@": path.resolve(__dirname, "src"),
     },
   },
+  base: "./",
+  build: {
+    rollupOptions: {
+      input: {
+        original: "./index.html",
+        basic: "./index.basic.html",
+        advanced: "./index.advanced.html",
+      },
+    },
+  },
   plugins: [react(), tsconfigPaths()],
 });
