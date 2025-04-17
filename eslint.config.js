@@ -1,7 +1,7 @@
-import { FlatCompat } from "@eslint/eslintrc";
 import js from "@eslint/js";
 import eslintConfigPrettier from "eslint-config-prettier/flat";
 import pluginReact from "eslint-plugin-react";
+import reactRefresh from "eslint-plugin-react-refresh";
 import { defineConfig } from "eslint/config";
 import globals from "globals";
 import path from "path";
@@ -11,11 +11,8 @@ import { fileURLToPath } from "url";
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-const compat = new FlatCompat({
-  baseDirectory: __dirname,
-});
-
 export default defineConfig([
+  { ignores: ["dist"] },
   {
     files: ["**/*.{js,mjs,cjs,ts,jsx,tsx}"],
     plugins: { js },
@@ -26,8 +23,8 @@ export default defineConfig([
     languageOptions: { globals: { ...globals.browser, ...globals.node } },
   },
   tseslint.configs.recommended,
+  reactRefresh.configs.recommended,
   pluginReact.configs.flat.recommended,
-  ...compat.extends("eslint-config-airbnb"),
   {
     files: ["eslint.config.js", "vite.config.js"],
     rules: {
@@ -44,6 +41,11 @@ export default defineConfig([
       "no-use-before-define": ["error", { functions: false }],
       "import/prefer-default-export": "off",
       "no-param-reassign": ["error", { props: false }],
+      "react/jsx-filename-extension": [
+        2,
+        { extensions: [".js", ".jsx", ".ts", ".tsx"] },
+      ],
+      "react/react-in-jsx-scope": "off",
     },
     settings: {
       "import/resolver": {
