@@ -11,7 +11,7 @@ export const getDiscountRateByDayOfWeek = () => {
     [DAY.friday]: 0,
     [DAY.saturday]: 0,
     [DAY.sunday]: 0,
-  };
+  } as const;
 
   return discountRateMap[day];
 };

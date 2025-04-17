@@ -1,7 +1,11 @@
+import { type Product } from "@/entities/product";
 import { SUGGESTED_DISCOUNT_RATE } from "../constants";
 import { hasStock } from "@/entities/product";
 
-export const pickSuggestedDiscountProduct = (products, excludedProductId) => {
+export const pickSuggestedDiscountProduct = (
+  products: Product[],
+  excludedProductId: Product["id"],
+) => {
   const suggestedProduct = products.find(
     (product) => product.id !== excludedProductId && hasStock(product),
   );
@@ -13,7 +17,7 @@ export const pickSuggestedDiscountProduct = (products, excludedProductId) => {
   return null;
 };
 
-export const alertSuggestedDiscount = (product) => {
+export const alertSuggestedDiscount = (product: Product) => {
   alert(
     `${product.name}은(는) 어떠세요? 지금 구매하시면 ${SUGGESTED_DISCOUNT_RATE * 100}% 추가 할인!`,
   );
